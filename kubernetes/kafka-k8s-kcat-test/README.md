@@ -354,25 +354,6 @@ kubectl get secret kafka-test-credentials -n default -o jsonpath='{.data.api\.ke
 1. Navigate to: Cluster → API Keys → Your Key → Edit Permissions
 2. Add ACL: Topic `your-topic-name`, Operation `READ` (and `WRITE` if producing)
 
-### No messages consumed
-
-**Expected behavior** if:
-- Topic is empty (no messages produced yet)
-- Consumer offset is at the end (try `-o beginning` flag)
-
-**Verify topic has messages**:
-```bash
-# Check partition offsets
-kubectl exec -it kafka-connectivity-test -- \
-  kcat -b $BOOTSTRAP_SERVERS \
-    -X security.protocol=SASL_SSL \
-    -X sasl.mechanism=PLAIN \
-    -X sasl.username=$SASL_USERNAME \
-    -X sasl.password=$SASL_PASSWORD \
-    -t $TOPIC_NAME \
-    -Q
-```
-
 ## Security Best Practices
 
 1. **Never commit secrets to version control**
