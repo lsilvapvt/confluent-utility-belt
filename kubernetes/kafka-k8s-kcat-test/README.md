@@ -199,13 +199,14 @@ kafka-connectivity-test    1/1     Running   0          10s
 This validates basic connectivity and authentication:
 
 ```bash
-kubectl exec -it kafka-connectivity-test -- \
+kubectl exec -it kafka-connectivity-test -n default -- sh -c '
   kcat -b $BOOTSTRAP_SERVERS \
     -X security.protocol=SASL_SSL \
     -X sasl.mechanism=PLAIN \
     -X sasl.username=$SASL_USERNAME \
     -X sasl.password=$SASL_PASSWORD \
     -L
+'  
 ```
 
 **Expected output**: Metadata showing brokers, topics, partitions, and replication info.
@@ -213,7 +214,7 @@ kubectl exec -it kafka-connectivity-test -- \
 #### Test 2: List All Topics
 
 ```bash
-kubectl exec -it kafka-connectivity-test -- sh -c '
+kubectl exec -it kafka-connectivity-test -n default -- sh -c '
   kcat -b $BOOTSTRAP_SERVERS \
     -X security.protocol=SASL_SSL \
     -X sasl.mechanism=PLAIN \
@@ -230,7 +231,7 @@ kubectl exec -it kafka-connectivity-test -- sh -c '
 Consume up to 10 messages from the beginning of the topic:
 
 ```bash
-kubectl exec -it kafka-connectivity-test -- \
+kubectl exec -it kafka-connectivity-test -n default -- sh -c '
   kcat -b $BOOTSTRAP_SERVERS \
     -X security.protocol=SASL_SSL \
     -X sasl.mechanism=PLAIN \
@@ -240,6 +241,7 @@ kubectl exec -it kafka-connectivity-test -- \
     -C \
     -c 10 \
     -o beginning
+'
 ```
 
 **Expected output**: Up to 10 messages from the topic (if messages exist).
@@ -250,27 +252,12 @@ kubectl exec -it kafka-connectivity-test -- \
 - `-o beginning`: Start from the beginning of the topic
 - `-e`: Exit after reaching end of partition (optional)
 
-#### Test 4: Get Topic Offset Information
-
-```bash
-kubectl exec -it kafka-connectivity-test -- \
-  kcat -b $BOOTSTRAP_SERVERS \
-    -X security.protocol=SASL_SSL \
-    -X sasl.mechanism=PLAIN \
-    -X sasl.username=$SASL_USERNAME \
-    -X sasl.password=$SASL_PASSWORD \
-    -t $TOPIC_NAME \
-    -Q
-```
-
-**Expected output**: High and low watermarks for each partition.
-
-#### Test 5: Interactive Shell (Optional)
+#### Test 4: Interactive Shell (Optional)
 
 For more exploration, get a shell inside the pod:
 
 ```bash
-kubectl exec -it kafka-connectivity-test -- sh
+kubectl exec -it kafka-connectivity-test -n default -- sh
 ```
 
 Once inside, you can run kcat commands directly:
@@ -295,13 +282,13 @@ When finished testing, remove all resources:
 
 ```bash
 # Delete the pod
-kubectl delete pod kafka-connectivity-test
+kubectl delete pod kafka-connectivity-test -n default
 
 # Delete the secret (recommended for security)
-kubectl delete secret kafka-test-credentials
+kubectl delete secret kafka-test-credentials -n default
 
 # Delete the ConfigMap
-kubectl delete configmap kafka-test-config
+kubectl delete configmap kafka-test-config -n default
 ```
 
 Or delete all at once:
@@ -333,12 +320,11 @@ kubectl describe pod kafka-connectivity-test
 **Possible causes**:
 1. **Network connectivity issue**: Firewall blocking outbound traffic on port 9092
 2. **Incorrect bootstrap server URL**: Verify the URL in your ConfigMap
-3. **VPC/subnet configuration**: Ensure pods have internet access or VPC peering is configured
 
 **Debug steps**:
 ```bash
 # Test basic network connectivity
-kubectl exec -it kafka-connectivity-test -- sh -c 'nc -zv pkc-xxxxx.us-east-1.aws.confluent.cloud 9092'
+kubectl exec -it kafka-connectivity-test -n default -- sh -c 'nc -zv pkc-xxxxx.us-east-1.aws.confluent.cloud 9092'
 
 # Test DNS resolution
 kubectl exec -it kafka-connectivity-test -- sh -c 'nslookup pkc-xxxxx.us-east-1.aws.confluent.cloud'
@@ -355,7 +341,8 @@ kubectl exec -it kafka-connectivity-test -- sh -c 'nslookup pkc-xxxxx.us-east-1.
 
 **Verify secret contents**:
 ```bash
-kubectl get secret kafka-test-credentials -o jsonpath='{.data.api\.key}' | base64 -d
+kubectl get secret kafka-test-credentials -n default -o jsonpath='{.data.api\.key}' | base64 -d
+
 # Should show your API key (without newline)
 ```
 
@@ -386,58 +373,6 @@ kubectl exec -it kafka-connectivity-test -- \
     -Q
 ```
 
-## Advanced Usage
-
-### Testing with Different Namespaces
-
-To deploy in a different namespace:
-
-```bash
-# Create namespace
-kubectl create namespace kafka-tests
-
-# Update all manifests to use the new namespace
-# Then apply:
-kubectl apply -f kafka-connectivity-test-configmap.yaml -n kafka-tests
-kubectl apply -f kafka-connectivity-test-secret.yaml -n kafka-tests
-kubectl apply -f kafka-connectivity-test-pod.yaml -n kafka-tests
-```
-
-### Producing Test Messages
-
-To test producing messages:
-
-```bash
-kubectl exec -it kafka-connectivity-test -- sh
-
-# Inside the pod:
-echo "Test message 1" | kcat -b $BOOTSTRAP_SERVERS \
-  -X security.protocol=SASL_SSL \
-  -X sasl.mechanism=PLAIN \
-  -X sasl.username=$SASL_USERNAME \
-  -X sasl.password=$SASL_PASSWORD \
-  -t $TOPIC_NAME \
-  -P
-```
-
-### Using with Schema Registry
-
-If testing with Avro schemas:
-
-```bash
-kubectl exec -it kafka-connectivity-test -- \
-  kcat -b $BOOTSTRAP_SERVERS \
-    -X security.protocol=SASL_SSL \
-    -X sasl.mechanism=PLAIN \
-    -X sasl.username=$SASL_USERNAME \
-    -X sasl.password=$SASL_PASSWORD \
-    -t $TOPIC_NAME \
-    -s avro \
-    -r https://psrc-xxxxx.us-east-1.aws.confluent.cloud \
-    -X schema.registry.url=https://psrc-xxxxx.us-east-1.aws.confluent.cloud \
-    -C
-```
-
 ## Security Best Practices
 
 1. **Never commit secrets to version control**
@@ -447,7 +382,7 @@ kubectl exec -it kafka-connectivity-test -- \
 2. **Use Kubernetes native secret management**
    - Consider using `kubectl create secret` instead of YAML files:
      ```bash
-     kubectl create secret generic kafka-test-credentials \
+     kubectl create secret generic kafka-test-credentials -n default \
        --from-literal=api.key=YOUR_KEY \
        --from-literal=api.secret=YOUR_SECRET
      ```
@@ -474,10 +409,6 @@ kubectl exec -it kafka-connectivity-test -- \
 - [Confluent Cloud Documentation - API Keys](https://docs.confluent.io/cloud/current/access-management/authenticate/api-keys/api-keys.html)
 - [Kubernetes Secrets Documentation](https://kubernetes.io/docs/concepts/configuration/secret/)
 - [Kubernetes ConfigMaps Documentation](https://kubernetes.io/docs/concepts/configuration/configmap/)
-
-## Contributing
-
-If you find issues with this guide or have suggestions for improvements, please open an issue or pull request in the repository.
 
 ## License
 
