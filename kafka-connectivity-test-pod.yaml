@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-connectivity-test
+  namespace: default
+  labels:
+    app: kafka-test
+    purpose: connectivity-validation
+spec:
+  containers:
+  - name: kcat
+    image: edenhill/kcat:1.7.1
+    # Keep the pod running so we can exec into it
+    command: ["sh", "-c", "sleep infinity"]
+    env:
+    - name: BOOTSTRAP_SERVERS
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-test-config
+          key: bootstrap.servers
+    - name: TOPIC_NAME
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-test-config
+          key: topic.name
+    - name: SASL_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: kafka-test-credentials
+          key: api.key
+    - name: SASL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: kafka-test-credentials
+          key: api.secret
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+      limits:
+        memory: "128Mi"
+        cpu: "200m"
+  restartPolicy: Never

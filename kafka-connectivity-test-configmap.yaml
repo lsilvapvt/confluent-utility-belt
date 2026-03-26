@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-test-config
+  namespace: default
+data:
+  # REPLACE: Your Confluent Cloud bootstrap server
+  # Example: pkc-xxxxx.us-east-1.aws.confluent.cloud:9092
+  bootstrap.servers: "pkc-xxxxx.us-east-1.aws.confluent.cloud:9092"
+
+  # REPLACE: Your topic name to test with
+  topic.name: "your-topic-name"
