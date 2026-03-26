@@ -131,7 +131,7 @@ spec:
   - name: kcat
     image: edenhill/kcat:1.7.1
     # Keep the pod running so we can exec into it
-    command: ["sh", "-c", "sleep infinity"]
+    command: ["sh", "-c", "sleep 600000"]
     env:
     - name: BOOTSTRAP_SERVERS
       valueFrom:
