@@ -4,6 +4,8 @@
 
 This guide demonstrates how to test network connectivity and authentication from a Kubernetes cluster (such as AWS EKS) to a Confluent Cloud Kafka cluster using a lightweight containerized tool called **kcat** (formerly known as kafkacat).
 
+![Testing Confluent Cloud Connectivity from Kubernetes using kcat](./k8s-kcat-test-diagram.png)
+
 ## Purpose
 
 When deploying applications like Confluent Platform for Apache Flink on Kubernetes that need to connect to Confluent Cloud, it's critical to validate:
