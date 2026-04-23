@@ -191,3 +191,11 @@ After the setup succeeds, run `cc-sa-check.sh` with the same `SA_ID` to confirm 
 - [Predefined RBAC roles in Confluent Cloud](https://docs.confluent.io/cloud/current/security/access-control/rbac/predefined-rbac-roles.html)
 - [Monitor and Manage Flink SQL Statements](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/monitor-statements.html)
 - [Manage workload identities on Confluent Cloud](https://docs.confluent.io/cloud/current/security/authenticate/workload-identities/manage-workload-identities.html)
+
+---
+
+## Disclaimer
+
+The tools and scripts in this repository are samples based on personal experience. They are provided as-is, without any guarantee or warranty of any kind. Use them at your own risk.
+
+These materials do not reflect the opinions, recommendations, or official positions of my employer, Confluent.

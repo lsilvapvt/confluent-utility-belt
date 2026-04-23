@@ -406,3 +406,11 @@ This documentation is provided as-is for educational and testing purposes.
 - Kubernetes: 1.28+
 - Confluent Cloud
 - AWS EKS
+
+---
+
+## Disclaimer
+
+The tools and scripts in this repository are samples based on personal experience. They are provided as-is, without any guarantee or warranty of any kind. Use them at your own risk.
+
+These materials do not reflect the opinions, recommendations, or official positions of my employer, Confluent.

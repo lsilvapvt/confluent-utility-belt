@@ -23,3 +23,11 @@ Shell scripts for managing and validating Confluent Cloud Flink service account 
 Kubernetes manifests and a step-by-step guide for validating network connectivity and authentication from a Kubernetes cluster (EKS, AKS, GKE, …) to a Confluent Cloud Kafka cluster using [kcat](https://github.com/edenhill/kcat).
 
 Covers: network reachability, firewall rules, API key authentication, and topic-level access — before deploying heavier workloads.
+
+---
+
+## Disclaimer
+
+The tools and scripts in this repository are samples based on personal experience. They are provided as-is, without any guarantee or warranty of any kind. Use them at your own risk.
+
+These materials do not reflect the opinions, recommendations, or official positions of my employer, Confluent.
