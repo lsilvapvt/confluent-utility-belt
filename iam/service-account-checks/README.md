@@ -1,5 +1,8 @@
 # Flink Service Account – RBAC Reference
 
+<img src="../../images/shield_check.png" alt="Confluent Utility - SA Check" height="100px" style="float: left; margin-right: 20px;">
+
+
 A Flink service account (SA) needs role bindings at three different scopes before it can successfully submit and run statements. Missing any one of them produces an *"insufficient permissions"* error even when the others are present.
 
 ## Required role bindings
